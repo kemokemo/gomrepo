@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 )
 
 func main() {
@@ -31,6 +32,9 @@ func run(args []string) int {
 		return 1
 	}
 
+	// The result of 'go list -m all' command enumerates the dependent modules.
+	// Format: {identifier of the dependent module} {version}
+	//         ex) cloud.google.com/go v0.26.0
 	cmd := exec.Command("go", "list", "-m", "all")
 	var cmdOut bytes.Buffer
 	cmd.Stdout = &cmdOut
@@ -39,6 +43,6 @@ func run(args []string) int {
 		fmt.Fprintln(outErr, fmt.Sprintf("failed to run command: %v", err))
 	}
 
-	fmt.Fprintf(out, "result of 'go list -m all' command:\n%v\n", cmdOut.String())
+	fmt.Fprintf(out, "result of 'go list -m all' command:\n%q\n", strings.Fields(cmdOut.String()))
 	return 0
 }
