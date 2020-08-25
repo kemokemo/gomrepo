@@ -9,7 +9,8 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-func getLicense(name string) (string, error) {
+// GetLicense returns the license name specified by args.
+func GetLicense(name string) (string, error) {
 	u, err := url.Parse(fmt.Sprintf("https://pkg.go.dev/%s?tab=licenses", name))
 	if err != nil {
 		return "", err

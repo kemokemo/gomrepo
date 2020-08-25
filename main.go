@@ -7,6 +7,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	gomrepo "github.com/kemokemo/gomrepo/lib"
 )
 
 func main() {
@@ -43,6 +45,17 @@ func run(args []string) int {
 		fmt.Fprintln(outErr, fmt.Sprintf("failed to run command: %v", err))
 	}
 
-	fmt.Fprintf(out, "result of 'go list -m all' command:\n%q\n", strings.Fields(cmdOut.String()))
+	modules := strings.Split(cmdOut.String(), "\n")
+	for _, module := range modules {
+		fields := strings.Fields(module)
+		if len(fields) < 2 {
+			continue
+		}
+		lic, e := gomrepo.GetLicense(fields[0])
+		if e != nil {
+			err = fmt.Errorf("%v: %v", err, e)
+		}
+		fmt.Fprintln(out, fmt.Sprintf("%s %s %s", fields[0], fields[1], lic))
+	}
 	return 0
 }
