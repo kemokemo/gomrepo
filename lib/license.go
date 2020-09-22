@@ -3,8 +3,10 @@ package gomrepo
 import (
 	"crypto/tls"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -45,4 +47,21 @@ func GetLicense(name string) (string, error) {
 	license := doc.Find(`#\#lic-0`).Text()
 
 	return license, nil
+}
+
+// PrintLicenses prints all licenses of 'modules' to the 'w' writer.
+func PrintLicenses(w io.Writer, modules []string) error {
+	var err error
+	for _, module := range modules {
+		fields := strings.Fields(module)
+		if len(fields) < 2 {
+			continue
+		}
+		lic, e := GetLicense(fields[0])
+		if e != nil {
+			err = fmt.Errorf("%v: %v", err, e)
+		}
+		fmt.Fprintln(w, fmt.Sprintf("%s %s %s", fields[0], fields[1], lic))
+	}
+	return err
 }

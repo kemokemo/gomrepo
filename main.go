@@ -43,19 +43,15 @@ func run(args []string) int {
 	err = cmd.Run()
 	if err != nil {
 		fmt.Fprintln(outErr, fmt.Sprintf("failed to run command: %v", err))
+		return 1
 	}
 
 	modules := strings.Split(cmdOut.String(), "\n")
-	for _, module := range modules {
-		fields := strings.Fields(module)
-		if len(fields) < 2 {
-			continue
-		}
-		lic, e := gomrepo.GetLicense(fields[0])
-		if e != nil {
-			err = fmt.Errorf("%v: %v", err, e)
-		}
-		fmt.Fprintln(out, fmt.Sprintf("%s %s %s", fields[0], fields[1], lic))
+	err = gomrepo.PrintLicenses(out, modules)
+	if err != nil {
+		fmt.Fprintln(outErr, fmt.Sprintf("failed to print licenses: %v", err))
+		return 1
 	}
+
 	return 0
 }
