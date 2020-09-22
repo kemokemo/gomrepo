@@ -54,7 +54,8 @@ func run(args []string) int {
 	}
 
 	modules := strings.Split(cmdOut.String(), "\n")
-	pkgs := make(chan pkginfo, 5)
+	pkgs := make(chan pkginfo)
+	tokens := make(chan struct{}, 10)
 	var counter int
 	cl := gomrepo.NewGomClient()
 
@@ -65,10 +66,12 @@ func run(args []string) int {
 		}
 		counter++
 		go func(id, ver string) {
+			tokens <- struct{}{}
 			lic, err := cl.GetLicense(id)
 			if err != nil {
 				fmt.Fprintln(outErr, "failed to get license info:", err)
 			}
+			<-tokens
 			pkgs <- pkginfo{id, ver, lic}
 		}(fields[0], fields[1])
 	}
