@@ -20,6 +20,13 @@ var (
 	outErr = os.Stderr
 )
 
+// pkginfo is the info of packages.
+type pkginfo struct {
+	id  string
+	ver string
+	lic string
+}
+
 func run(args []string) int {
 	var dirPath string
 	if len(args) > 0 {
@@ -47,10 +54,29 @@ func run(args []string) int {
 	}
 
 	modules := strings.Split(cmdOut.String(), "\n")
-	err = gomrepo.PrintLicenses(out, modules)
-	if err != nil {
-		fmt.Fprintln(outErr, fmt.Sprintf("failed to print licenses: %v", err))
-		return 1
+	pkgs := make(chan pkginfo, 5)
+	var counter int
+	cl := gomrepo.NewGomClient()
+
+	for _, module := range modules[1:] {
+		fields := strings.Fields(module)
+		if len(fields) < 2 {
+			continue
+		}
+		counter++
+		go func(id, ver string) {
+			lic, err := cl.GetLicense(id)
+			if err != nil {
+				fmt.Fprintln(outErr, "failed to get license info:", err)
+			}
+			pkgs <- pkginfo{id, ver, lic}
+		}(fields[0], fields[1])
+	}
+
+	for counter > 0 {
+		pkg := <-pkgs
+		fmt.Fprintln(out, fmt.Sprintf("%s %s %s", pkg.id, pkg.ver, pkg.lic))
+		counter--
 	}
 
 	return 0
