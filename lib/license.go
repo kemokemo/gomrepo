@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -54,4 +55,49 @@ func (g *GomClient) GetLicense(name string) (string, error) {
 	license := doc.Find(`#\#lic-0`).Text()
 
 	return license, nil
+}
+
+// pkginfo is the info of packages.
+type pkginfo struct {
+	id  string
+	ver string
+	lic string
+	err error
+}
+
+const semaphore = 10
+
+// GetLicenseList returns the formated license table with id, version and license.
+func (g *GomClient) GetLicenseList(modules []string, tf tableFormatter) (string, error) {
+	pkgCn := make(chan pkginfo)
+	tokens := make(chan struct{}, semaphore)
+	var counter int
+
+	for _, module := range modules {
+		fields := strings.Fields(module)
+		if len(fields) < 2 {
+			continue
+		}
+		counter++
+		go func(id, ver string) {
+			tokens <- struct{}{}
+			lic, err := g.GetLicense(id)
+			<-tokens
+			pkgCn <- pkginfo{id, ver, lic, err}
+		}(fields[0], fields[1])
+	}
+
+	var pkgs []pkginfo
+	var e error
+	for counter > 0 {
+		pkg := <-pkgCn
+		if pkg.err != nil {
+			e = fmt.Errorf("failed to get licenses: %v", pkg.err)
+		} else {
+			pkgs = append(pkgs, pkg)
+		}
+		counter--
+	}
+
+	return tf.table(pkgs), e
 }
