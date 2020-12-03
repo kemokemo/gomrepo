@@ -16,7 +16,7 @@ func Test_GetLicense(t *testing.T) {
 		wantErr bool
 	}{
 		{"cobra", args{"github.com/spf13/cobra"}, "Apache-2.0", false},
-		{"invalid name", args{"github.com/kemokemo/hogehoge"}, "", true},
+		{"invalid name", args{"github.com/kemokemo/sample"}, "", true},
 		{"invalid url", args{"kemokemo/foo"}, "", true},
 	}
 	for _, tt := range tests {
