@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	gomrepo "github.com/kemokemo/gomrepo/lib"
 )
@@ -15,7 +16,7 @@ var (
 )
 
 func init() {
-	flag.StringVar(&format, "format", "", "format to output")
+	flag.StringVar(&format, "format", "markdown", "format to output")
 	flag.Parse()
 }
 
@@ -30,8 +31,8 @@ var (
 
 func run(args []string) int {
 	var dirPath string
-	if len(args) > 0 {
-		dirPath = filepath.Clean(args[0])
+	if len(flag.Args()) > 0 {
+		dirPath = filepath.Clean((flag.Args())[0])
 	} else {
 		dirPath = filepath.Clean(".")
 	}
@@ -43,11 +44,23 @@ func run(args []string) int {
 	}
 
 	cl := gomrepo.NewGomClient()
-	err = cl.GetLicenseList(out, modules, gomrepo.MD)
+	err = cl.GetLicenseList(out, modules, getFormatter(format))
 	if err != nil {
 		fmt.Fprintln(outErr, "failed to get license list: ", err)
 		return 1
 	}
 
 	return 0
+}
+
+func getFormatter(f string) gomrepo.Formatter {
+	f = strings.ToLower(f)
+	switch f {
+	case "markdown", "md":
+		return gomrepo.MD
+	case "html", "htm":
+		return gomrepo.HTML
+	default:
+		return gomrepo.MD
+	}
 }

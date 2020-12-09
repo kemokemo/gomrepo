@@ -7,6 +7,37 @@ import (
 	"testing"
 )
 
+const (
+	expectedMD = `|ID|Version|License|
+|:---|:---|:---|
+|github.com/andybalholm/cascadia|v1.1.0|BSD-2-Clause|
+|golang.org/x/net|v0.0.0-20180218175443-cbe0f9307d01|BSD-3-Clause|
+`
+
+	expectedHTML = `<table>
+	<thead>
+		<tr>
+		  <th>ID</th>
+		  <th>Version</th>
+		  <th>License</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+		  <td>github.com/andybalholm/cascadia</td>
+		  <td>v1.1.0</td>
+		  <td>BSD-2-Clause</td>
+		</tr>
+		<tr>
+		  <td>golang.org/x/net</td>
+		  <td>v0.0.0-20180218175443-cbe0f9307d01</td>
+		  <td>BSD-3-Clause</td>
+		</tr>
+	</tbody>
+</table>
+`
+)
+
 func Test_GetLicense(t *testing.T) {
 	cl := NewGomClient()
 	type args struct {
@@ -55,7 +86,7 @@ func TestGomClient_GetLicenseList(t *testing.T) {
 	}
 	type args struct {
 		modules []string
-		tf      tableFormatter
+		tf      Formatter
 	}
 	tests := []struct {
 		name    string
@@ -64,7 +95,8 @@ func TestGomClient_GetLicenseList(t *testing.T) {
 		wantW   string
 		wantErr bool
 	}{
-		{"markdown normal", fields{client}, args{mods, MD}, "|ID|Version|License|\n|:---|:---|:---|\n|github.com/andybalholm/cascadia|v1.1.0|BSD-2-Clause|\n|golang.org/x/net|v0.0.0-20180218175443-cbe0f9307d01|BSD-3-Clause|\n", false},
+		{"markdown normal", fields{client}, args{mods, MD}, expectedMD, false},
+		{"HTML normal", fields{client}, args{mods, HTML}, expectedHTML, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

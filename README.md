@@ -5,5 +5,7 @@ This tiny tool enumerates the license information of the dependent packages list
 ## Usage
 
 ```sh
-gorepo {your_project_directory_path}
+gomrepo -format {your_favorite_format} {your_project_directory_path}
+
+# ex) gomrepo -format markdown ./my-golang-app
 ```

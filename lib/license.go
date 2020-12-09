@@ -69,7 +69,7 @@ type pkginfo struct {
 const semaphore = 10
 
 // GetLicenseList returns the formated license table with id, version and license.
-func (g *GomClient) GetLicenseList(w io.Writer, modules []string, tf tableFormatter) error {
+func (g *GomClient) GetLicenseList(w io.Writer, modules []string, tf Formatter) error {
 	pkgCn := make(chan pkginfo)
 	tokens := make(chan struct{}, semaphore)
 	var counter int
