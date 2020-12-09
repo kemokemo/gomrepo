@@ -3,6 +3,7 @@ package gomrepo
 import (
 	"crypto/tls"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -59,16 +60,16 @@ func (g *GomClient) GetLicense(name string) (string, error) {
 
 // pkginfo is the info of packages.
 type pkginfo struct {
-	id  string
-	ver string
-	lic string
-	err error
+	ID      string
+	Version string
+	License string
+	Error   error
 }
 
 const semaphore = 10
 
 // GetLicenseList returns the formated license table with id, version and license.
-func (g *GomClient) GetLicenseList(modules []string, tf tableFormatter) (string, error) {
+func (g *GomClient) GetLicenseList(w io.Writer, modules []string, tf tableFormatter) error {
 	pkgCn := make(chan pkginfo)
 	tokens := make(chan struct{}, semaphore)
 	var counter int
@@ -88,16 +89,19 @@ func (g *GomClient) GetLicenseList(modules []string, tf tableFormatter) (string,
 	}
 
 	var pkgs []pkginfo
-	var e error
+	var err error
 	for counter > 0 {
 		pkg := <-pkgCn
-		if pkg.err != nil {
-			e = fmt.Errorf("failed to get licenses: %v", pkg.err)
+		if pkg.Error != nil {
+			err = fmt.Errorf("failed to get licenses: %v", pkg.Error)
 		} else {
 			pkgs = append(pkgs, pkg)
 		}
 		counter--
 	}
+	if err != nil {
+		return err
+	}
 
-	return tf.table(pkgs), e
+	return tf.table(w, pkgs)
 }

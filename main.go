@@ -43,13 +43,11 @@ func run(args []string) int {
 	}
 
 	cl := gomrepo.NewGomClient()
-	licenses, err := cl.GetLicenseList(modules, gomrepo.MD)
+	err = cl.GetLicenseList(out, modules, gomrepo.MD)
 	if err != nil {
 		fmt.Fprintln(outErr, "failed to get license list: ", err)
 		return 1
 	}
-
-	fmt.Fprintln(out, licenses)
 
 	return 0
 }

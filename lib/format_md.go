@@ -2,35 +2,33 @@ package gomrepo
 
 import (
 	"fmt"
+	"io"
 	"sort"
-	"strings"
+	"text/template"
 )
 
 type md struct{}
 
-const formatMdRow = "|%s|%s|%s|"
-
-var (
-	headerMd   = fmt.Sprintf(formatMdRow, "ID", "Version", "License")
-	splitterMd = fmt.Sprintf(formatMdRow, ":---", ":---", ":---")
-)
+const formatMd = `|ID|Version|License|
+|:---|:---|:---|
+{{range .}}{{if .Error}}{{else}}|{{.ID}}|{{.Version}}|{{.License}}|
+{{end}}{{end}}`
 
 // Format returns the table format string for markdown.
-func (m *md) table(pkgs []pkginfo) string {
+func (m *md) table(w io.Writer, pkgs []pkginfo) error {
 	if len(pkgs) == 0 {
-		return ""
+		return fmt.Errorf("there is no data to be formatted")
 	}
-
-	var rows []string
-	for _, pkg := range pkgs {
-		if pkg.err != nil {
-			continue
-		}
-		rows = append(rows, fmt.Sprintf(formatMdRow, pkg.id, pkg.ver, pkg.lic))
+	tpl, err := template.New("").Parse(formatMd)
+	if err != nil {
+		return fmt.Errorf("failed to parse template for markdown: %v", err)
 	}
-	sort.Strings(rows)
-	rows = append([]string{splitterMd}, rows...)
-	rows = append([]string{headerMd}, rows...)
-
-	return strings.Join(rows, "\n")
+	sort.SliceStable(pkgs, func(i, j int) bool {
+		return pkgs[i].ID < pkgs[j].ID
+	})
+	err = tpl.Execute(w, pkgs)
+	if err != nil {
+		return fmt.Errorf("failed to execute template for markdown: %v", err)
+	}
+	return nil
 }
