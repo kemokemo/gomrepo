@@ -62,6 +62,8 @@ func getFormatter(f string) gomrepo.Formatter {
 		return gomrepo.HTML
 	case "asciidoc", "ascii":
 		return gomrepo.ASCIIDoc
+	case "textile":
+		return gomrepo.Textile
 	default:
 		return gomrepo.MD
 	}

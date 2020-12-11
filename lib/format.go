@@ -11,6 +11,9 @@ var HTML Formatter = (*html)(nil)
 // ASCIIDoc is the table formatter for AsciiDoc.
 var ASCIIDoc Formatter = (*asciidoc)(nil)
 
+// Textile is the table formatter for textile.
+var Textile Formatter = (*textile)(nil)
+
 // Formatter is the formats to output go module report.
 type Formatter interface {
 	table(io.Writer, []pkginfo) error

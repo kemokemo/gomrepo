@@ -51,6 +51,11 @@ const (
 |BSD-3-Clause
 |===
 `
+
+	expectedTextile = `|_. ID |_. Version |_. License |
+| github.com/andybalholm/cascadia | v1.1.0 | BSD-2-Clause |
+| golang.org/x/net | v0.0.0-20180218175443-cbe0f9307d01 | BSD-3-Clause |
+`
 )
 
 func Test_GetLicense(t *testing.T) {
@@ -113,6 +118,7 @@ func TestGomClient_GetLicenseList(t *testing.T) {
 		{"markdown normal", fields{client}, args{mods, MD}, expectedMD, false},
 		{"HTML normal", fields{client}, args{mods, HTML}, expectedHTML, false},
 		{"ASCIIDoc normal", fields{client}, args{mods, ASCIIDoc}, expectedASCIIDoc, false},
+		{"Textile normal", fields{client}, args{mods, Textile}, expectedTextile, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
