@@ -5,6 +5,8 @@ import (
 	"crypto/tls"
 	"net/http"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 const (
@@ -36,6 +38,19 @@ const (
 	</tbody>
 </table>
 `
+
+	expectedASCIIDoc = `|===
+|ID |Version |License
+
+|github.com/andybalholm/cascadia
+|v1.1.0
+|BSD-2-Clause
+
+|golang.org/x/net
+|v0.0.0-20180218175443-cbe0f9307d01
+|BSD-3-Clause
+|===
+`
 )
 
 func Test_GetLicense(t *testing.T) {
@@ -60,8 +75,8 @@ func Test_GetLicense(t *testing.T) {
 				t.Errorf("GetLicense() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if got != tt.want {
-				t.Errorf("GetLicense() = %v, want %v", got, tt.want)
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("GetLicense() = mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
@@ -97,6 +112,7 @@ func TestGomClient_GetLicenseList(t *testing.T) {
 	}{
 		{"markdown normal", fields{client}, args{mods, MD}, expectedMD, false},
 		{"HTML normal", fields{client}, args{mods, HTML}, expectedHTML, false},
+		{"ASCIIDoc normal", fields{client}, args{mods, ASCIIDoc}, expectedASCIIDoc, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -108,8 +124,9 @@ func TestGomClient_GetLicenseList(t *testing.T) {
 				t.Errorf("GomClient.GetLicenseList() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if gotW := w.String(); gotW != tt.wantW {
-				t.Errorf("GomClient.GetLicenseList() = %v, want %v", gotW, tt.wantW)
+			gotW := w.String()
+			if diff := cmp.Diff(tt.wantW, gotW); diff != "" {
+				t.Errorf("GomClient.GetLicenseList() = mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
