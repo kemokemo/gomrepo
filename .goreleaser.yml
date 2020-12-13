@@ -1,0 +1,59 @@
+project_name: gomrepo
+env:
+  - GO111MODULE=on
+before:
+  hooks:
+    - go mod download
+builds:
+  - main: .
+    binary: gomrepo
+    ldflags:
+      - -s -w -X github.com/kemokemo/gomrepo/Revision={{.ShortCommit}}
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+      - windows
+      - freebsd
+    goarch:
+      - 386
+      - amd64
+      - arm64
+changelog:
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^chore:'
+archives:
+  - name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
+    replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      386: i386
+      amd64: x86_64
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - README.md
+      - LICENSE
+release:
+  prerelease: auto
+brews:
+  - tap:
+      owner: kemokemo
+      name: homebrew-tap
+    homepage: "https://github.com/kemokemo/gomrepo"
+    description: "This small tool adds license information to the 'go module' information and outputs it in various formats."
+    install: |
+      bin.install "gomrepo"
+scoop:
+  bucket:
+    owner: kemokemo
+    name: scoop-bucket
+  homepage:  "https://github.com/kemokemo/gomrepo"
+  description: "This small tool adds license information to the 'go module' information and outputs it in various formats."
+  license: MIT
