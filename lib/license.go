@@ -27,7 +27,7 @@ func NewGomClient() *GomClient {
 	return &GomClient{client: client}
 }
 
-// GetLicense returns the license name specified by args.
+// GetLicense returns the license name of the package specified by args.
 func (g *GomClient) GetLicense(name string) (string, error) {
 	u, err := url.Parse(fmt.Sprintf("https://pkg.go.dev/%s?tab=licenses", name))
 	if err != nil {
