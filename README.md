@@ -31,3 +31,8 @@ The following is an example of using this tool to generate a list of licenses fo
 - HTML
 - AsciiDoc
 - Textile
+
+## Special thanks
+
+This tool is using information from [pkg.go.dev](https://pkg.go.dev/) site.
+I would like to take this opportunity to thank all the contributors of [pkg.go.dev](https://pkg.go.dev/) site.
