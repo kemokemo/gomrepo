@@ -8,7 +8,7 @@ builds:
   - main: .
     binary: gomrepo
     ldflags:
-      - -s -w -X github.com/kemokemo/gomrepo/Revision={{.ShortCommit}}
+      - -s -w -X github.com/kemokemo/gomrepo/main.Revision={{.ShortCommit}}
     env:
       - CGO_ENABLED=0
     goos:
