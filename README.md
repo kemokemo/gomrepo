@@ -32,6 +32,38 @@ The following is an example of using this tool to generate a list of licenses fo
 - AsciiDoc
 - Textile
 
+## How to install
+
+### Homebrew
+
+```sh
+brew install kemokemo/tap/gomrepo
+```
+
+### Scoop
+
+First, add my scoop-bucket.
+
+```sh
+scoop bucket add kemokemo-bucket https://github.com/kemokemo/scoop-bucket.git
+```
+
+Next, install this app by running the following.
+
+```sh
+scoop install gomrepo
+```
+
+### Build yourself
+
+```sh
+go install github.com/kemokemo/gomrepo
+```
+
+### Binary
+
+Download from [the release page](https://github.com/kemokemo/gomrepo/releases/latest), unpack the archive and put the binary somewhere in your `PATH`.
+
 ## Special thanks
 
 This tool is using information from [pkg.go.dev](https://pkg.go.dev/) site.
